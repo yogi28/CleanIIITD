@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.spark.cleaniiitd.WashroomScreen">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="7"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:id="@+id/currentDate"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/text"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/bathroomText"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/bathroom_text"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/text"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/washroomId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/text"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/superviseMorningButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/superviseMorningTime" />
+
+        <Button
+            android:id="@+id/superviseNoonButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/superviseNoonTime" />
+
+        <Button
+            android:id="@+id/superviseEveningButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/superviseEveningTime" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

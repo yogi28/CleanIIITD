@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "97310622424",
+    "firebase_url": "https://cleaniiitd.firebaseio.com",
+    "project_id": "cleaniiitd",
+    "storage_bucket": "cleaniiitd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97310622424:android:c96707af5935d607",
+        "android_client_info": {
+          "package_name": "com.example.spark.cleaniiitd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97310622424-vh166arhn1i2c22957lki85v1iinh309.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.spark.cleaniiitd",
+            "certificate_hash": "09f944ea595e75c0eb13ec7f4805578b94d82caf"
+          }
+        },
+        {
+          "client_id": "97310622424-f4ucmko22pa82bned67eiogdooi19loj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8mg15Ueh9F-9Y79G-H0RotMTuQHztAHM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97310622424-f4ucmko22pa82bned67eiogdooi19loj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
