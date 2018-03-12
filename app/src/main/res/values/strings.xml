@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CleanIIITD</string>
+    <string name="app_name">CleanWise</string>
     <string name="loggedin">LoggedIn</string>
     <string name="log_out">Log Out</string>
     <string name="scan_qr">Scan QR</string>
@@ -16,4 +16,7 @@
     <string name="history_page_text">Welcome to your history page</string>
     <string name="log_out_button_test">Log Out</string>
     <string name="currentDate">currentDate</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="scan_qr_text">Scan QR Code of the \n Washroom</string>
+    <!--<string name="main_screen_text">CLEAN IIITD</string>-->
 </resources>

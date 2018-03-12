@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -33,10 +34,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class SignIn extends AppCompatActivity {
 
 
-    SignInButton button;
+    SignInButton signInButton;
     FirebaseAuth mAuth;
     String account_name;
-    private final static int RC_SIGN_IN = 2;
+    private final static int RC_SIGN_IN = 9220;
 //    GoogleSignInClient mGoogleSignInClient;
     GoogleApiClient mGoogleApiClient;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -45,7 +46,10 @@ public class SignIn extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+//        mAuth.addAuthStateListener(mAuthListener);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+
     }
 
     @Override
@@ -53,27 +57,21 @@ public class SignIn extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        button = (SignInButton) findViewById(R.id.googleBtn);
+        signInButton = (SignInButton) findViewById(R.id.googleBtn);
         mAuth = FirebaseAuth.getInstance();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
-            }
-        });
 
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() != null) {
-                    Intent intent = new Intent(SignIn.this, ScanQR.class);
-                    intent.putExtra("account_name", account_name);
-                    startActivity(intent);
-                }
-            }
-        };
+//        mAuthListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                if (firebaseAuth.getCurrentUser() != null) {
+//                    Intent intent = new Intent(SignIn.this, ScanQR.class);
+//                    intent.putExtra("account_name", account_name);
+//                    startActivity(intent);
+//                }
+//            }
+//        };
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -81,17 +79,16 @@ public class SignIn extends AppCompatActivity {
                 .requestEmail()
                 .build();
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-//                    @Override
-//                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-//                        Toast.makeText(SignIn.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-//                    }
-//                })
-//                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-//                .build();
-
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signIn();
+            }
+        });
+        setGooglePlusButtonText(signInButton, "Sign in with IIITD account");
+
     }
 
 
@@ -137,7 +134,7 @@ public class SignIn extends AppCompatActivity {
                 // Google Sign In failed, update UI appropriately
                 Log.w("TAG", "Google sign in failed", e);
                 // [START_EXCLUDE]
-//                updateUI(null);
+                updateUI(null);
                 // [END_EXCLUDE]
             }
         }
@@ -154,13 +151,13 @@ public class SignIn extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("TAG", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-//                             updateUI(user);
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
                             Toast.makeText(SignIn.this, "Auth failed", Toast.LENGTH_SHORT).show();
 //                            Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                            // updateUI(null);
+                             updateUI(null);
                         }
 
                         // ...
@@ -169,6 +166,58 @@ public class SignIn extends AppCompatActivity {
 
     }
 
+    public void signOut(){
+        mAuth.signOut();
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        updateUI(null);
+                    }
+                });
+//        finish();
+    }
+
+
+    public void updateUI(FirebaseUser currentUser) {
+        if (currentUser != null) {
+            boolean access = false;
+            String msg = "";
+            if (currentUser.getEmail().endsWith("@iiitd.ac.in")) {
+                access = true;
+                msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
+                        + "\nAccess: Granted";
+            } else
+                msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
+                        + "\nAccess: Denied";
+
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            if (access) {
+                Intent intent = new Intent(SignIn.this, ScanQR.class);
+                startActivity(intent);
+            }
+            else {
+            signOut();
+        }
+    }
+        else {
+            Toast.makeText(this, "Sign In with your IIITD account.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    protected void setGooglePlusButtonText(SignInButton signInButton, String buttonText) {
+        // Find the TextView that is inside of the SignInButton and set its text
+        for (int i = 0; i < signInButton.getChildCount(); i++) {
+            View v = signInButton.getChildAt(i);
+
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                tv.setText(buttonText);
+                return;
+            }
+        }
+    }
 
 
 }
