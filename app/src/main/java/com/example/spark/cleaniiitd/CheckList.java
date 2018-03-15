@@ -9,15 +9,20 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.spark.cleaniiitd.adapters.ImageAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +34,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 
 public class CheckList extends AppCompatActivity {
@@ -39,9 +47,14 @@ public class CheckList extends AppCompatActivity {
     private ImageView uploadedImages;
     private Uri imageUri;
     private ProgressBar mProgressBar;
+//    private LinearLayout uploadImageLayout;
+    private ImageButton addImageButton;
+    private RecyclerView mRecyclerView;
+    private ImageAdapter imageAdapter;
 
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
+    private ArrayList<Uri> allImagesUri = new ArrayList<>();
 
 
     @Override
@@ -52,11 +65,22 @@ public class CheckList extends AppCompatActivity {
         String superviseTime = superviseTimeIntent.getStringExtra("superviseTime");
 
         uploadButton = findViewById(R.id.uploadButton);
-        captureImageButton = findViewById(R.id.captureImageButton);
-        uploadedImages = findViewById(R.id.uploadedImageView);
+//        captureImageButton = findViewById(R.id.captureImageButton);
+//        uploadedImages = findViewById(R.id.uploadedImageView);
         mProgressBar = findViewById(R.id.progressBar);
+        mRecyclerView = findViewById(R.id.image_list);
+//        uploadImageLayout = findViewById(R.id.uploadImageLayout);
+        addImageButton = findViewById(R.id.addImage);
+
         mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
+
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openCamera();
+            }
+        });
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,12 +91,15 @@ public class CheckList extends AppCompatActivity {
             }
         });
 
-        captureImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openCamera();
-            }
-        });
+        imageAdapter = new ImageAdapter(this);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayout.HORIZONTAL, false));
+        mRecyclerView.setAdapter(imageAdapter);
+//        captureImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                openCamera();
+//            }
+//        });
     }
 
     private void openCamera()
@@ -96,7 +123,19 @@ public class CheckList extends AppCompatActivity {
                 test = "TESTING";
             }
             Toast.makeText(this, test, Toast.LENGTH_SHORT).show();
-            Picasso.with(this).load(imageUri).into(uploadedImages);
+            ImageView newImage = new ImageView(this);
+            newImage.setMaxWidth(10);
+            newImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            newImage.setLayoutParams(new LinearLayout.LayoutParams(
+                    0,
+//                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    1.0f));
+
+//            uploadImageLayout.addView(newImage);
+            allImagesUri.add(imageUri);
+            imageAdapter.updateImageList(allImagesUri);
+            Picasso.with(this).load(imageUri).into(newImage);
 //            grantUriPermission("com.example.spark.cleaniiitd", imageUri, 0);
 //            uploadedImages.setImageURI(imageUri);
         }
@@ -110,43 +149,50 @@ public class CheckList extends AppCompatActivity {
 
     private void uploadImage(){
         final Activity activity = this;
-        if (imageUri!=null){
-            StorageReference fileRefernce = mStorageRef.child(System.currentTimeMillis()
-            +"."+getImageExtension(imageUri));
-            fileRefernce.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mProgressBar.setProgress(0);
-                        }
-                    }, 5000);
-                    Log.d("IMAGE", "onSuccess");
-                    Toast.makeText(activity, "Upload Successful", Toast.LENGTH_SHORT).show();
-                    UploadImage uploadImage = new UploadImage("IMAGE_1", taskSnapshot.getDownloadUrl().toString());
-                    String uploadId = mDatabaseRef.push().getKey();
-                    mDatabaseRef.child(uploadId).setValue(uploadImage);
+        Uri tempImageUri = null;
+//        if (imageUri!=null){
+        if (!allImagesUri.isEmpty()){
 
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("IMAGE", "onFailure");
-                    Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            })
-            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d("IMAGE", "onProgress");
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                    mProgressBar.setProgress((int) progress);
-                }
-            });
-        }else {
+            for(Uri imageUri : allImagesUri) {
+                StorageReference fileRefernce = mStorageRef.child(System.currentTimeMillis()
+                        + "." + getImageExtension(imageUri));
+                fileRefernce.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mProgressBar.setProgress(0);
+                            }
+                        }, 5000);
+                        Log.d("IMAGE", "onSuccess");
+                        Toast.makeText(activity, "Upload Successful", Toast.LENGTH_SHORT).show();
+                        UploadImage uploadImage = new UploadImage("IMAGE_1", taskSnapshot.getDownloadUrl().toString());
+                        String uploadId = mDatabaseRef.push().getKey();
+                        mDatabaseRef.child(uploadId).setValue(uploadImage);
+
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("IMAGE", "onFailure");
+                                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d("IMAGE", "onProgress");
+                                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                                mProgressBar.setProgress((int) progress);
+                            }
+                        });
+            }
+        }
+
+        else {
             Toast.makeText(this, "No image Selected!", Toast.LENGTH_SHORT).show();
         }
     }

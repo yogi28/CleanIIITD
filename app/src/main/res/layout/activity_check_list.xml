@@ -12,7 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="6"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <CheckBox
@@ -21,8 +21,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:layout_marginTop="25sp"
-            android:layout_marginBottom="8sp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/superviseTask1" />
 
         <CheckBox
@@ -43,54 +43,59 @@
             android:layout_weight="1"
             android:text="@string/superviseTask3" />
 
-        <CheckBox
-            android:id="@+id/superviseTask4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="8sp"
-            android:layout_weight="1"
-            android:text="@string/superviseTask4" />
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:id="@+id/progressBar"/>
 
     </LinearLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:layout_weight="1">
 
-        <Button
-            android:id="@+id/captureImageButton"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:text="capture"
-            android:layout_weight="10"
-            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            style="@style/Widget.AppCompat.ProgressBar"
-            />
+            <ImageButton
+                android:id="@+id/addImage"
+                android:layout_width="0dp"
+                android:src="@drawable/add"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/uploadedImageView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="30"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/uploadButton"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:text="upload images"
-            android:layout_weight="10"
-            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/uploadButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="B"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
 
     </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/image_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    </android.support.v7.widget.RecyclerView>
+
 
 
 </LinearLayout>

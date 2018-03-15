@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/LoginScreenTheme"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@drawable/cleanwise_bg"
     android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context="com.example.spark.cleaniiitd.SignIn">
@@ -11,7 +13,7 @@
 
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="275dp"
+        android:layout_height="200dp"
         android:layout_gravity="center"
         android:minHeight="200dp"
         android:scaleType="fitCenter"
@@ -20,18 +22,17 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="51dp"
         android:layout_gravity="center"
         android:text="@string/app_name"
-        android:textStyle="bold"
-        android:textSize="25sp"
-        android:layout_marginTop="70sp"/>
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/googleBtn"
         android:layout_width="wrap_content"
         android:layout_height="44dp"
         android:layout_gravity="center"
-        android:layout_marginTop="35dp"></com.google.android.gms.common.SignInButton>
+        android:layout_marginTop="60dp"/>
 
 </LinearLayout>
