@@ -1,11 +1,13 @@
 package com.example.spark.cleaniiitd.activities;
 
 //import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +20,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.spark.cleaniiitd.R;
 import com.example.spark.cleaniiitd.ShowPoints;
@@ -51,35 +54,25 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     SignInActivity signInActivityActivity = new SignInActivity();
     FirebaseUser user;
 
+    boolean doubleBackToExitPressedOnce = false;
+
 
     @Override
-    protected void onStart() {
-        super.onStart();
-//        super.onStart();
-        if (user != null) {
-//            userDetailsText.setText("User: " + user.getDisplayName() + "\nEmail: " + user.getEmail() + "\nAccess: Granted");
-            //user.getPhotoUrl()
-            resultTextView.setText(user.getDisplayName());
-//            userNameText.setText);
-//            userEmailText.setText(user.getEmail());
-//            mAuth.addAuthStateListener(mAuthListener);
-
-        } else {
-//            userDetailsText.setText("Not Logged In!");
-            finish();
-        }
-    }
-
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_scan_qr);
+        setContentView(R.layout.scan_qr_screen);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         mainLayout = (ViewGroup) findViewById(R.id.main_layout);
 
-//        mAuth = FirebaseAuth.getInstance();
+        resultTextView = (TextView) findViewById(R.id.result_text_view);
 
+        historyButton = (Button) findViewById(R.id.scan_screen_button);
+//        logOutButton = (Button) findViewById(R.id.log_out);
+
+
+//        mAuth = FirebaseAuth.getInstance();
 
 
 //        mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -102,7 +95,6 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
 
-
 //        mAuthListener = new FirebaseAuth.AuthStateListener() {
 //            @Override
 //            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -113,17 +105,34 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
 //        };
 
 
-
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             initQRCodeReaderView();
         } else {
             requestCameraPermission();
         }
     }
 
-    @Override protected void onResume() {
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        super.onStart();
+        if (user != null) {
+//            userDetailsText.setText("User: " + user.getDisplayName() + "\nEmail: " + user.getEmail() + "\nAccess: Granted");
+            //user.getPhotoUrl()
+            resultTextView.setText(user.getDisplayName());
+//            userNameText.setText);
+//            userEmailText.setText(user.getEmail());
+//            mAuth.addAuthStateListener(mAuthListener);
+
+        } else {
+//            userDetailsText.setText("Not Logged In!");
+            finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
         super.onResume();
 
         if (qrCodeReaderView != null) {
@@ -131,7 +140,8 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         }
     }
 
-    @Override protected void onPause() {
+    @Override
+    protected void onPause() {
         super.onPause();
 
         if (qrCodeReaderView != null) {
@@ -139,7 +149,8 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         }
     }
 
-    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode != MY_PERMISSION_REQUEST_CAMERA) {
             return;
         }
@@ -149,10 +160,11 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
             initQRCodeReaderView();
         } else {
             Snackbar.make(mainLayout, "Camera permission request was denied.", Snackbar.LENGTH_SHORT).show();
-            }mAuthListener = new FirebaseAuth.AuthStateListener() {
+        }
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null){
+                if (firebaseAuth.getCurrentUser() == null) {
                     Intent toWashroomScreenIntent = new Intent(ScanQRActivity.this, SignInActivity.class);
                     startActivity(toWashroomScreenIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 }
@@ -164,7 +176,8 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     // Called when a QR is decoded
     // "text" : the text encoded in QR
     // "points" : points where QR control points are placed
-    @Override public void onQRCodeRead(String text, PointF[] points) {
+    @Override
+    public void onQRCodeRead(String text, PointF[] points) {
         pointsOverlayView.setPoints(points);
         Intent toWashroomScreenIntent = new Intent(ScanQRActivity.this, WashroomActivity.class);
         toWashroomScreenIntent.putExtra("washroomId", text);
@@ -175,15 +188,16 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     private void requestCameraPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
             Snackbar.make(mainLayout, "Camera access is required to display the camera preview.", Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                ActivityCompat.requestPermissions(ScanQRActivity.this, new String[] {
-                        Manifest.permission.CAMERA
-                }, MY_PERMISSION_REQUEST_CAMERA);
-            }
-          }).show();
+                @Override
+                public void onClick(View view) {
+                    ActivityCompat.requestPermissions(ScanQRActivity.this, new String[]{
+                            Manifest.permission.CAMERA
+                    }, MY_PERMISSION_REQUEST_CAMERA);
+                }
+            }).show();
         } else {
             Snackbar.make(mainLayout, "Permission is not available. Requesting camera permission.", Snackbar.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(this, new String[] {
+            ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.CAMERA
             }, MY_PERMISSION_REQUEST_CAMERA);
         }
@@ -191,22 +205,20 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
 
     private void initQRCodeReaderView() {
 
-        View content = getLayoutInflater().inflate(R.layout.scan_qr_screen, mainLayout, true);
+//        View content = getLayoutInflater().inflate(R.layout.scan_qr_screen, mainLayout, true);
 
-        qrCodeReaderView = (QRCodeReaderView) content.findViewById(R.id.qrdecoderview);
-        resultTextView = (TextView) content.findViewById(R.id.result_text_view);
-        flashlightCheckBox = (CheckBox) content.findViewById(R.id.flashlight_checkbox);
-        historyButton = (Button) findViewById(R.id.scan_screen_button);
-//        logOutButton = (Button) findViewById(R.id.log_out);
-        pointsOverlayView = (ShowPoints) content.findViewById(R.id.points_overlay_view);
+        qrCodeReaderView = (QRCodeReaderView) findViewById(R.id.qrdecoderview);
+        pointsOverlayView = (ShowPoints) findViewById(R.id.points_overlay_view);
+        flashlightCheckBox = (CheckBox) findViewById(R.id.flashlight_checkbox);
 
-        qrCodeReaderView.setAutofocusInterval(2000L);
+        qrCodeReaderView.setAutofocusInterval(1000L);
         qrCodeReaderView.setOnQRCodeReadListener(this);
         qrCodeReaderView.setBackCamera();
         flashlightCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        @Override public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-            qrCodeReaderView.setTorchEnabled(isChecked);
-        }
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                qrCodeReaderView.setTorchEnabled(isChecked);
+            }
         });
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -227,7 +239,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         qrCodeReaderView.startCamera();
     }
 
-    public void signOut(){
+    public void signOut() {
         mAuth.signOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
@@ -239,6 +251,26 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
                 });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory( Intent.CATEGORY_HOME );
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(homeIntent);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

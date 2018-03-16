@@ -24,9 +24,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
 
     private ArrayList<Uri> images;
     private Context mContext;
+//    private ArrayList<Bitmap> imagesBitmap;
 
     public ImageAdapter(Context context) {
         images = new ArrayList<>();
+//        imagesBitmap = new ArrayList<>();
         this.mContext = context;
     }
 
@@ -34,6 +36,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
         this.images = images;
         this.mContext = context;
     }
+//
+//    public ImageAdapter(Context context, ArrayList<Bitmap> images) {
+//        this.imagesBitmap = images;
+//        this.mContext = context;
+//    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -43,12 +50,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
+
         holder.washroomImage.setImageURI(images.get(position));
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        // downsizing image as it throws OutOfMemory Exception for larger images
-//        options.inSampleSize = 8;
-//        final Bitmap bitmap = BitmapFactory.decodeFile(images.get(position).getPath(), options);
-//        holder.washroomImage.setImageBitmap(bitmap);
+
         holder.deleteImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,6 +73,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
         images = image_list;
         notifyDataSetChanged();
     }
+//
+//    public void updateImageList(ArrayList<Bitmap> image_list) {
+//        imagesBitmap = image_list;
+//        notifyDataSetChanged();
+//    }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 

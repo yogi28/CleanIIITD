@@ -57,15 +57,15 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
         setGooglePlusButtonText(signInButton, "Sign in with IIITD account");
-
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+
     }
 
 
@@ -132,7 +132,7 @@ public class SignInActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(SignInActivity.this, "Auth failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignInActivity.this, "Some Error Occurred", Toast.LENGTH_SHORT).show();
 //                            Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -159,7 +159,7 @@ public class SignInActivity extends AppCompatActivity {
         if (currentUser != null) {
             boolean access = false;
             String msg;
-            Toast.makeText(this, "Email: " + currentUser.getEmail(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "Email: " + currentUser.getEmail(), Toast.LENGTH_LONG).show();
             if (currentUser.getEmail() != null && currentUser.getEmail().endsWith("@iiitd.ac.in")) {
                 access = true;
                 msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
@@ -171,15 +171,14 @@ public class SignInActivity extends AppCompatActivity {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             if (access) {
                 Intent intent = new Intent(SignInActivity.this, ScanQRActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Sign In with your IIITD account.", Toast.LENGTH_SHORT).show();
                 signOut();
             }
-        } else {
-            Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     protected void setGooglePlusButtonText(SignInButton signInButton, String buttonText) {
@@ -197,3 +196,142 @@ public class SignInActivity extends AppCompatActivity {
 
 
 }
+
+//
+//public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
+//    private static final int RC_SIGN_IN = 9220;
+//    private static final String TAG = SignInActivity.class.getSimpleName();
+//    private FirebaseAuth mAuth;
+//    SignInButton signInButton;
+//
+//    GoogleSignInClient mGoogleSignInClient;
+//
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_sign_in);
+//        mAuth = FirebaseAuth.getInstance();
+//
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                .requestIdToken(getString(R.string.default_web_client_id))
+//                .requestEmail()
+//                .build();
+//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+//
+//        signInButton = findViewById(R.id.googleBtn);
+//        signInButton.setOnClickListener(this);
+//    }
+//
+//    private void signIn() {
+//        Log.d(TAG, "Sign In Called");
+//        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
+//    }
+//
+//    private void signOut() {
+//        Log.d(TAG, "Sign Out Called");
+//        mAuth.signOut();
+//
+//        mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                updateUI(null);
+//            }
+//        });
+//    }
+//
+//    private void revokeAccess() {
+//        Log.d(TAG, "Revoke Access Called");
+//        mAuth.signOut();
+//
+//        mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                updateUI(null);
+//            }
+//        });
+//    }
+//
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+//        if (requestCode == RC_SIGN_IN) {
+//            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+//            try {
+//                // Google Sign In was successful, authenticate with Firebase
+//                GoogleSignInAccount account = task.getResult(ApiException.class);
+//                firebaseAuthWithGoogle(account);
+//            } catch (ApiException e) {
+//                // Google Sign In failed, update UI appropriately
+//                Log.w(TAG, "Google sign in failed", e);
+//                updateUI(null);
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        // Check if user is signed in (non-null) and update UI accordingly.
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        updateUI(currentUser);
+//    }
+//
+//    private void updateUI(FirebaseUser currentUser) {
+//        if (currentUser != null) {
+//            boolean access = false;
+//            String msg = "";
+//            if (currentUser.getEmail() != null && currentUser.getEmail().endsWith("@iiitd.ac.in")) {
+//                access = true;
+//                msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
+//                        + "\nAccess: Granted";
+//            } else
+//                msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
+//                        + "\nAccess: Denied";
+//
+//            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+//            if (access) {
+//                Intent intent = new Intent(SignInActivity.this, ScanQRActivity.class);
+//                startActivity(intent);
+//            } else {
+//                signOut();
+//            }
+//        } else {
+//            Toast.makeText(this, "Sign In with your IIITD account.", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
+//
+//    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+//        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+//
+//        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+//        mAuth.signInWithCredential(credential)
+//                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()) {
+//                            // Sign in success, update UI with the signed-in user's information
+//                            Log.d(TAG, "signInWithCredential:success");
+//                            FirebaseUser user = mAuth.getCurrentUser();
+//                            updateUI(user);
+//                        } else {
+//                            // If sign in fails, display a message to the user.
+//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+//
+//                            updateUI(null);
+//                        }
+//                    }
+//                });
+//    }
+//
+//    @Override
+//    public void onClick(View view) {
+//        int i = view.getId();
+//        if (i == R.id.googleBtn) {
+//            signIn();
+//        }
+//    }
+//}
