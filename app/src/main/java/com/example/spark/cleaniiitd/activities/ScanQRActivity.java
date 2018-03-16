@@ -1,4 +1,4 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.activities;
 
 //import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import android.Manifest;
@@ -18,11 +18,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.spark.cleaniiitd.R;
+import com.example.spark.cleaniiitd.ShowPoints;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.GoogleApiClient;
 //import com.google.android.gms.auth.api.signin;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
@@ -32,7 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class ScanQR extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, OnQRCodeReadListener {
+public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, OnQRCodeReadListener {
 
     private static final int MY_PERMISSION_REQUEST_CAMERA = 0;
 
@@ -48,7 +48,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
     FirebaseAuth.AuthStateListener mAuthListener;
     private TextView mStatusTextView;
     private TextView mDetailTextView;
-    SignIn signInActivity = new SignIn();
+    SignInActivity signInActivityActivity = new SignInActivity();
     FirebaseUser user;
 
 
@@ -86,7 +86,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
 //            @Override
 //            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 //                if (firebaseAuth.getCurrentUser() != null) {
-//                    Intent intent = new Intent(SignIn.this, ScanQR.class);
+//                    Intent intent = new Intent(SignInActivity.this, ScanQRActivity.class);
 //                    intent.putExtra("account_name", account_name);
 //                    startActivity(intent);
 //                }
@@ -107,7 +107,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
 //            @Override
 //            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 //                if (firebaseAuth.getCurrentUser() == null){
-//                    startActivity(new Intent(ScanQR.this, SignIn.class));
+//                    startActivity(new Intent(ScanQRActivity.this, SignInActivity.class));
 //                }
 //            }
 //        };
@@ -153,7 +153,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() == null){
-                    Intent toWashroomScreenIntent = new Intent(ScanQR.this, SignIn.class);
+                    Intent toWashroomScreenIntent = new Intent(ScanQRActivity.this, SignInActivity.class);
                     startActivity(toWashroomScreenIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 }
             }
@@ -166,7 +166,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
     // "points" : points where QR control points are placed
     @Override public void onQRCodeRead(String text, PointF[] points) {
         pointsOverlayView.setPoints(points);
-        Intent toWashroomScreenIntent = new Intent(ScanQR.this, WashroomScreen.class);
+        Intent toWashroomScreenIntent = new Intent(ScanQRActivity.this, WashroomActivity.class);
         toWashroomScreenIntent.putExtra("washroomId", text);
         startActivity(toWashroomScreenIntent);
 
@@ -176,7 +176,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
             Snackbar.make(mainLayout, "Camera access is required to display the camera preview.", Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
             @Override public void onClick(View view) {
-                ActivityCompat.requestPermissions(ScanQR.this, new String[] {
+                ActivityCompat.requestPermissions(ScanQRActivity.this, new String[] {
                         Manifest.permission.CAMERA
                 }, MY_PERMISSION_REQUEST_CAMERA);
             }
@@ -211,7 +211,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent toHistoryActivityIntent = new Intent(ScanQR.this, History.class);
+                Intent toHistoryActivityIntent = new Intent(ScanQRActivity.this, HistoryActivity.class);
                 startActivity(toHistoryActivityIntent);
             }
         });
@@ -233,7 +233,7 @@ public class ScanQR extends AppCompatActivity implements ActivityCompat.OnReques
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-//                        signInActivity.updateUI(null);
+//                        signInActivityActivity.updateUI(null);
                         finish();
                     }
                 });

@@ -1,4 +1,4 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -7,11 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.spark.cleaniiitd.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class WashroomScreen extends AppCompatActivity{
+public class WashroomActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,7 @@ public class WashroomScreen extends AppCompatActivity{
         superviseMorningButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent callCheckListIntent = new Intent(WashroomScreen.this, CheckList.class);
+                Intent callCheckListIntent = new Intent(WashroomActivity.this, CheckListActivity.class);
                 callCheckListIntent.putExtra("superviseTime", superviseMorningButton.getText());
                 startActivity(callCheckListIntent);
             }

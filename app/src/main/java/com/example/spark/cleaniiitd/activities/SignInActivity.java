@@ -1,28 +1,23 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.activities;
 
-import android.accounts.AccountManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
+import com.example.spark.cleaniiitd.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.AccountPicker;
-import com.google.android.gms.common.ConnectionResult;
+
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApi;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -31,26 +26,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class SignIn extends AppCompatActivity {
-
-
+public class SignInActivity extends AppCompatActivity {
     SignInButton signInButton;
     FirebaseAuth mAuth;
-    String account_name;
-    private final static int RC_SIGN_IN = 9220;
-//    GoogleSignInClient mGoogleSignInClient;
-    GoogleApiClient mGoogleApiClient;
-    FirebaseAuth.AuthStateListener mAuthListener;
+    private final static int RC_SIGN_IN = 9221;
     private GoogleSignInClient mGoogleSignInClient;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        mAuth.addAuthStateListener(mAuthListener);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-
-    }
+    public ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,19 +41,6 @@ public class SignIn extends AppCompatActivity {
 
         signInButton = (SignInButton) findViewById(R.id.googleBtn);
         mAuth = FirebaseAuth.getInstance();
-
-
-
-//        mAuthListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                if (firebaseAuth.getCurrentUser() != null) {
-//                    Intent intent = new Intent(SignIn.this, ScanQR.class);
-//                    intent.putExtra("account_name", account_name);
-//                    startActivity(intent);
-//                }
-//            }
-//        };
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -92,12 +61,40 @@ public class SignIn extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+    }
+
+
+    public void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.setIndeterminate(true);
+        }
+
+        mProgressDialog.show();
+    }
+
+    public void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        hideProgressDialog();
+    }
+
+
     private void signIn() {
-//        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-//        Intent signInIntent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
-//                false, null, null, null, null);
-        Log.d("TAG", "sign in intent"+signInIntent.toString());
+        Log.d("TAG", "sign in intent" + signInIntent.toString());
         startActivityForResult(signInIntent, RC_SIGN_IN);
 
     }
@@ -105,24 +102,6 @@ public class SignIn extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-//        if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
-//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-//            if(result!=null) {
-//                if (result.isSuccess()) {
-//                    account_name = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-//                    GoogleSignInAccount account = result.getSignInAccount();
-//                    firebaseAuthWithGoogle(account);
-//                } else {
-//                    Toast.makeText(SignIn.this, "Auth went wrong", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//            else
-//            {
-//                Log.d("signinnull", "failed");
-//            }
-//        }
 
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -133,15 +112,13 @@ public class SignIn extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w("TAG", "Google sign in failed", e);
-                // [START_EXCLUDE]
                 updateUI(null);
-                // [END_EXCLUDE]
             }
         }
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-//        showProgressDialog();
+        showProgressDialog();
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -155,18 +132,16 @@ public class SignIn extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(SignIn.this, "Auth failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignInActivity.this, "Auth failed", Toast.LENGTH_SHORT).show();
 //                            Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                             updateUI(null);
+                            updateUI(null);
                         }
-
-                        // ...
                     }
                 });
 
     }
 
-    public void signOut(){
+    public void signOut() {
         mAuth.signOut();
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
@@ -180,10 +155,12 @@ public class SignIn extends AppCompatActivity {
 
 
     public void updateUI(FirebaseUser currentUser) {
+        hideProgressDialog();
         if (currentUser != null) {
             boolean access = false;
-            String msg = "";
-            if (currentUser.getEmail().endsWith("@iiitd.ac.in")) {
+            String msg;
+            Toast.makeText(this, "Email: " + currentUser.getEmail(), Toast.LENGTH_LONG).show();
+            if (currentUser.getEmail() != null && currentUser.getEmail().endsWith("@iiitd.ac.in")) {
                 access = true;
                 msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()
                         + "\nAccess: Granted";
@@ -193,15 +170,14 @@ public class SignIn extends AppCompatActivity {
 
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             if (access) {
-                Intent intent = new Intent(SignIn.this, ScanQR.class);
+                Intent intent = new Intent(SignInActivity.this, ScanQRActivity.class);
                 startActivity(intent);
+            } else {
+                Toast.makeText(this, "Sign In with your IIITD account.", Toast.LENGTH_SHORT).show();
+                signOut();
             }
-            else {
-            signOut();
-        }
-    }
-        else {
-            Toast.makeText(this, "Sign In with your IIITD account.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show();
         }
 
     }

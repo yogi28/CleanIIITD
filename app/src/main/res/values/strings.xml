@@ -18,5 +18,6 @@
     <string name="currentDate">currentDate</string>
     <string name="sign_out">Sign Out</string>
     <string name="scan_qr_text">Scan QR Code of the \n Washroom</string>
+    <string name="loading">Signing In...</string>
     <!--<string name="main_screen_text">CLEAN IIITD</string>-->
 </resources>

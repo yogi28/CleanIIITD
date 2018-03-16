@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.spark.cleaniiitd.WashroomScreen">
+    tools:context="com.example.spark.cleaniiitd.activities.WashroomActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

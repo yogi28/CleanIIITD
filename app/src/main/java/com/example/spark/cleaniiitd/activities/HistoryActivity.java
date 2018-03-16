@@ -1,9 +1,11 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class History extends AppCompatActivity {
+import com.example.spark.cleaniiitd.R;
+
+public class HistoryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

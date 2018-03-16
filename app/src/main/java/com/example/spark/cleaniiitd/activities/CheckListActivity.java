@@ -1,4 +1,4 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.activities;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -22,10 +22,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.spark.cleaniiitd.R;
+import com.example.spark.cleaniiitd.UploadImage;
 import com.example.spark.cleaniiitd.adapters.ImageAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -35,11 +36,8 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
-
-public class CheckList extends AppCompatActivity {
+public class CheckListActivity extends AppCompatActivity {
 
     public static final int REQUEST_CAMERA = 1;
     private Button uploadButton;

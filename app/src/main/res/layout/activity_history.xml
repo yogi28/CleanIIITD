@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.spark.cleaniiitd.History">
+    tools:context="com.example.spark.cleaniiitd.activities.HistoryActivity">
 
     <TextView
         android:id="@+id/history_text"

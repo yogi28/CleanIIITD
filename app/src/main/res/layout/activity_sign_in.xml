@@ -7,7 +7,7 @@
     android:background="@drawable/cleanwise_bg"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context="com.example.spark.cleaniiitd.SignIn">
+    tools:context="com.example.spark.cleaniiitd.activities.SignInActivity">
 
     <ImageView
 
