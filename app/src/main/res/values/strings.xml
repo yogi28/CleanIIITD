@@ -19,5 +19,11 @@
     <string name="sign_out">Sign Out</string>
     <string name="scan_qr_text">Scan QR Code of the \n Washroom</string>
     <string name="loading">Signing In...</string>
+    <string name="images_label">Images:</string>
+    <string name="add_image">Add Image</string>
+    <string name="add_new_image">Add New Image</string>
+    <string name="submit">Submit</string>
+    <string name="past_records">Past Records</string>
+    <string name="tasks_label">Tasks:</string>
     <!--<string name="main_screen_text">CLEAN IIITD</string>-->
 </resources>

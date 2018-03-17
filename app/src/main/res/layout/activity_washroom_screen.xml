@@ -5,74 +5,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:context="com.example.spark.cleaniiitd.activities.WashroomActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_weight="7"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:id="@+id/currentDate"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:textColor="@color/text"
-            android:layout_weight="1"
-            android:layout_marginTop="5dp"/>
-
-        <TextView
-            android:id="@+id/bathroomText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:text="@string/bathroom_text"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:textColor="@color/text"
-            android:layout_weight="1"/>
+        android:paddingVertical="40dp">
 
         <TextView
             android:id="@+id/washroomId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="20sp"
             android:textColor="@color/text"
-            android:layout_weight="1" />
+            android:textSize="20sp" />
 
-        <Button
-            android:id="@+id/superviseMorningButton"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="@string/superviseMorningTime" />
-
-        <Button
-            android:id="@+id/superviseNoonButton"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="@string/superviseNoonTime" />
-
-        <Button
-            android:id="@+id/superviseEveningButton"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="@string/superviseEveningTime" />
+        <TextView
+            android:id="@+id/currentDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/text"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3">
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/superviseMorningButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button"
+            android:text="@string/superviseMorningTime"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/superviseNoonButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button"
+            android:text="@string/superviseNoonTime"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/superviseEveningButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button"
+            android:text="@string/superviseEveningTime"
+            android:textColor="#ffffff" />
 
     </LinearLayout>
-
 
 
 </LinearLayout>

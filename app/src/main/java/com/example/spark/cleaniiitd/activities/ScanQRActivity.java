@@ -61,7 +61,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.scan_qr_screen);
+        setContentView(R.layout.activity_scan_qr);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         mainLayout = (ViewGroup) findViewById(R.id.main_layout);
@@ -181,6 +181,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         pointsOverlayView.setPoints(points);
         Intent toWashroomScreenIntent = new Intent(ScanQRActivity.this, WashroomActivity.class);
         toWashroomScreenIntent.putExtra("washroomId", text);
+        toWashroomScreenIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(toWashroomScreenIntent);
 
     }
@@ -205,7 +206,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
 
     private void initQRCodeReaderView() {
 
-//        View content = getLayoutInflater().inflate(R.layout.scan_qr_screen, mainLayout, true);
+//        View content = getLayoutInflater().inflate(R.layout.activity_scan_qr, mainLayout, true);
 
         qrCodeReaderView = (QRCodeReaderView) findViewById(R.id.qrdecoderview);
         pointsOverlayView = (ShowPoints) findViewById(R.id.points_overlay_view);

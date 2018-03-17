@@ -6,34 +6,34 @@ package com.example.spark.cleaniiitd;
 
 public class UploadImage {
 
-    private String mName;
-    private String mImageUrl;
+    private String name;
+    private String url;
 
-    public UploadImage(){
+    public UploadImage() {
         // Empty constructor
     }
 
-    public UploadImage(String name, String url){
-        if (name.trim().equals("")){
+    public UploadImage(String name, String url) {
+        if (name.trim().equals("")) {
             name = "No Image";
         }
-        mName = name;
-        mImageUrl = url;
+        this.name = name;
+        this.url = url;
     }
 
-    public String getmName() {
-        return mName;
+    public String getName() {
+        return name;
     }
 
-    public void setmName(String mName) {
-        this.mName = mName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getmImageUrl() {
-        return mImageUrl;
+    public String getUrl() {
+        return url;
     }
 
-    public void setmImageUrl(String mImageUrl) {
-        this.mImageUrl = mImageUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
