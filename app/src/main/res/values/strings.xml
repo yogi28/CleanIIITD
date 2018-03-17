@@ -13,7 +13,7 @@
     <string name="superviseTask4">Task 4</string>
     <string name="scannerButton">History</string>
     <string name="scan_screen_text">History</string>
-    <string name="history_page_text">Welcome to your history page</string>
+    <string name="history_page_text">No Past Records</string>
     <string name="log_out_button_test">Log Out</string>
     <string name="currentDate">currentDate</string>
     <string name="sign_out">Sign Out</string>
