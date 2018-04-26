@@ -13,14 +13,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by ck on 17-03-2018.
  */
 
+
 public class Utilities {
+
+    public static String getUserKey(String email) {
+        String[] key = email.split("@");
+        return key[0];
+    }
 
     public static String getFilename(String name) {
         return (getAppDirectory().getAbsolutePath() + "/" + name + ".jpg");
@@ -124,7 +133,7 @@ public class Utilities {
 
 
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
@@ -137,8 +146,34 @@ public class Utilities {
 
     }
 
+    public enum Status {
+        EARLY, PENDING, DONE, LATE
+    }
 
+    public static ArrayList<Status> inWhichSlot() throws ParseException {
+        Date date = new Date();
+        String[] start_times = new String[]{"08:00", "12:00", "18:00"};
+        String[] end_times = new String[]{"11:00", "15:00", "21:00"};
 
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:ss", Locale.ENGLISH);
+
+        Date now = sdf.parse(sdf.format(date));
+
+        ArrayList<Status> statuses = new ArrayList<>();
+
+        for (int i = 0; i < start_times.length; i++) {
+            Date d_start = sdf.parse(start_times[i]);
+            Date d_end = sdf.parse(end_times[i]);
+            if (now.before(d_start)) {
+                statuses.add(Status.EARLY);
+            } else if (d_start.before(now) && d_end.after(now)) {
+                statuses.add(Status.PENDING);
+            } else if (now.after(d_end)) {
+                statuses.add(Status.LATE);
+            }
+        }
+        return statuses;
+    }
 
 
 }

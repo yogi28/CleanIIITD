@@ -22,8 +22,11 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.spark.cleaniiitd.CleanWiseApp;
 import com.example.spark.cleaniiitd.R;
 import com.example.spark.cleaniiitd.ShowPoints;
+import com.example.spark.cleaniiitd.pojo.Supervisor;
+import com.example.spark.cleaniiitd.pojo.Washroom;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 //import com.google.android.gms.auth.api.signin;
@@ -32,8 +35,13 @@ import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView.OnQRCodeReadListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.ArrayList;
 
 public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, OnQRCodeReadListener {
 
@@ -53,6 +61,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     private TextView mDetailTextView;
     SignInActivity signInActivityActivity = new SignInActivity();
     FirebaseUser user;
+    private CleanWiseApp application;
 
     boolean doubleBackToExitPressedOnce = false;
 
@@ -69,6 +78,9 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
         resultTextView = (TextView) findViewById(R.id.result_text_view);
 
         historyButton = (Button) findViewById(R.id.scan_screen_button);
+
+        application = CleanWiseApp.getInstance();
+
 //        logOutButton = (Button) findViewById(R.id.log_out);
 
 
@@ -256,7 +268,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory( Intent.CATEGORY_HOME );
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
             homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(homeIntent);
         }
@@ -268,7 +280,7 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -282,24 +294,40 @@ public class ScanQRActivity extends AppCompatActivity implements ActivityCompat.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        switch (id) {
+            case R.id.action_logout:
+                signOut();
+                return true;
+            case R.id.action_insert:
+                ArrayList<Washroom> washrooms = new ArrayList<>();
+                washrooms.add(new Washroom("OBH1-F0-W1", "Old Boys Hostel", 0));
+                washrooms.add(new Washroom("OBH1-F0-W2", "Old Boys Hostel", 0));
+                washrooms.add(new Washroom("OBH1-F0-W3", "Old Boys Hostel", 0));
+                washrooms.add(new Washroom("OBH1-F1-W1", "Old Boys Hostel", 1));
+                washrooms.add(new Washroom("OBH1-F1-W2", "Old Boys Hostel", 1));
+                washrooms.add(new Washroom("OBH1-F1-W3", "Old Boys Hostel", 1));
+                washrooms.add(new Washroom("OBH1-F2-W1", "Old Boys Hostel", 2));
+                washrooms.add(new Washroom("OBH1-F2-W2", "Old Boys Hostel", 2));
+                washrooms.add(new Washroom("OBH1-F2-W3", "Old Boys Hostel", 2));
+                DatabaseReference washroomReference = application.getFirebaseDatabaseInstance().getReference("washrooms");
+                for (Washroom w : washrooms) {
+                    washroomReference.child(w.getId()).setValue(w);
+                }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            signOut();
+                ArrayList<Supervisor> supervisors = new ArrayList<>();
+                supervisors.add(new Supervisor("vaibhav17065","vaibhav17065@iiitd.ac.in", "Vaibhav Varshney", FirebaseInstanceId.getInstance().getToken()));
+                supervisors.add(new Supervisor("yogesh17071","yogesh17071@iiitd.ac.in", "Yogesh IIITD", FirebaseInstanceId.getInstance().getToken()));
+                supervisors.add(new Supervisor("shubhi17057","shubhi17057@iiitd.ac.in", "Shubhi Tiwari", FirebaseInstanceId.getInstance().getToken()));
+                supervisors.add(new Supervisor("rajshree17045","rajshree17045@iiitd.ac.in", "Rajshree Khare", FirebaseInstanceId.getInstance().getToken()));
+                supervisors.add(new Supervisor("chirag17010","chirag17010@iiitd.ac.in", "Chirag Khurana", FirebaseInstanceId.getInstance().getToken()));
+                DatabaseReference supervisorReference = application.getFirebaseDatabaseInstance().getReference("supervisors");
+                for (Supervisor s: supervisors) {
+                    supervisorReference.child(s.getId()).setValue(s);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
-
-
-//
-//    private void updateUI(FirebaseUser user) {
-////        hideProgressDialog();
-//        Toast.makeText(this, "hahahahah", Toast.LENGTH_SHORT).show();
-//    }
-
 }

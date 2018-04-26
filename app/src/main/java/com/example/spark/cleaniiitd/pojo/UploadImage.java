@@ -1,4 +1,4 @@
-package com.example.spark.cleaniiitd;
+package com.example.spark.cleaniiitd.pojo;
 
 /**
  * Created by spark on 11/3/18.

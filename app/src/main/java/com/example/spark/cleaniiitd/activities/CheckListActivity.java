@@ -3,7 +3,7 @@ package com.example.spark.cleaniiitd.activities;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -15,32 +15,35 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.spark.cleaniiitd.CleanWiseApp;
 import com.example.spark.cleaniiitd.R;
-import com.example.spark.cleaniiitd.UploadImage;
+import com.example.spark.cleaniiitd.pojo.Job;
+import com.example.spark.cleaniiitd.pojo.Record;
+import com.example.spark.cleaniiitd.pojo.UploadImage;
 import com.example.spark.cleaniiitd.adapters.ImageAdapter;
 import com.example.spark.cleaniiitd.utilities.Utilities;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,21 +51,30 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import okhttp3.internal.Util;
+
 public class CheckListActivity extends AppCompatActivity {
 
     public static final int REQUEST_CAMERA = 1;
     private Button uploadButton;
     private TextView washroomText;
     private ProgressBar mProgressBar;
-    //    private LinearLayout uploadImageLayout;
     private RecyclerView mRecyclerView;
     private ImageAdapter imageAdapter;
 
+    private CleanWiseApp application;
+
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
+    private DatabaseReference mJobsRef;
+    private DatabaseReference mRecordRef;
     private ArrayList<Uri> allImagesUri = new ArrayList<>();
     private ArrayList<String> imagePaths;
     private String TAG = CheckListActivity.class.getSimpleName();
+    private String currDate;
+
+    private int slot;
+    private String washroomId;
 
 
     @Override
@@ -71,20 +83,24 @@ public class CheckListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_check_list);
         Intent superviseTimeIntent = getIntent();
         String supervisionTime = superviseTimeIntent.getStringExtra("superviseTime");
-        String washroomId = superviseTimeIntent.getStringExtra("washroom_id");
-        String job_date = superviseTimeIntent.getStringExtra("date");
+        washroomId = superviseTimeIntent.getStringExtra("washroom_id");
+        currDate = superviseTimeIntent.getStringExtra("date");
+        slot = superviseTimeIntent.getIntExtra("slot", 0);
         imagePaths = new ArrayList<>();
 
+        application = CleanWiseApp.getInstance();
 
         uploadButton = findViewById(R.id.uploadButton);
         washroomText = findViewById(R.id.washroom_id);
-        washroomText.setText(washroomId + ", " + job_date + '\n' + supervisionTime);
+        washroomText.setText(washroomId + ", " + currDate + '\n' + supervisionTime);
         mProgressBar = findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.INVISIBLE);
         mRecyclerView = findViewById(R.id.image_list);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
+//        mDatabaseRef = application.getFirebaseDatabaseInstance().getReference("uploads");
+        mJobsRef = application.getFirebaseDatabaseInstance().getReference("jobs");
+        mRecordRef = application.getFirebaseDatabaseInstance().getReference("records");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -203,6 +219,12 @@ public class CheckListActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.VISIBLE);
         final Activity activity = this;
         if (!allImagesUri.isEmpty()) {
+            final Job job = new Job();
+            job.setSlot(slot);
+            job.setWashroomId(washroomId);
+            job.setSupervisorId(application.getAppUser(null).getId());
+            final ArrayList<String> imageUrls = new ArrayList<>();
+
             for (final Uri imageUri : allImagesUri) {
                 Log.d(TAG, imageUri.toString());
                 final String filename = imageUri.getPathSegments().get(imageUri.getPathSegments().size() - 1);
@@ -211,6 +233,27 @@ public class CheckListActivity extends AppCompatActivity {
                 fileReference.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        imageUrls.add(taskSnapshot.getDownloadUrl().toString());
+                        if (imageUrls.size() == allImagesUri.size()) {
+                            job.setImages(imageUrls);
+                            String key = mJobsRef.push().getKey();
+                            job.setId(key);
+
+                            Record record = new Record();
+                            record.setJobId(job.getId());
+                            record.setStatus(Utilities.Status.DONE);
+                            record.setSupervisorId(job.getSupervisorId());
+
+                            mJobsRef.child(key).setValue(job);
+                            mJobsRef.child(key).child("timestamp").setValue(ServerValue.TIMESTAMP);
+                            mRecordRef.child(currDate).child(job.getWashroomId()).child(String.valueOf(slot)).setValue(record);
+
+                            //TODO: Add this job id to users past records
+
+
+                            mProgressBar.setVisibility(View.INVISIBLE);
+                            finish();
+                        }
                         Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {
                             @Override
@@ -218,35 +261,35 @@ public class CheckListActivity extends AppCompatActivity {
                                 mProgressBar.setProgress(0);
                             }
                         }, 5000);
-                        Log.d(TAG, "onSuccess");
-                        Toast.makeText(activity, "Upload Successful", Toast.LENGTH_SHORT).show();
-                        UploadImage uploadImage = new UploadImage(filename, taskSnapshot.getDownloadUrl().toString());
-                        String uploadId = mDatabaseRef.push().getKey();
-                        mDatabaseRef.child(uploadId).setValue(uploadImage);
-                        mProgressBar.setVisibility(View.INVISIBLE);
-                        finish();
+//                        Log.d(TAG, "onSuccess");
+//                        Toast.makeText(activity, "Upload Successful", Toast.LENGTH_SHORT).show();
+//                        UploadImage uploadImage = new UploadImage(filename, taskSnapshot.getDownloadUrl().toString());
+//                        String uploadId = mDatabaseRef.push().getKey();
+//                        mDatabaseRef.child(uploadId).setValue(uploadImage);
+//                        mProgressBar.setVisibility(View.INVISIBLE);
+//                        finish();
                     }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "onFailure");
-                                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                Log.d(TAG, "onProgress");
-                                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                                mProgressBar.setProgress((int) progress);
-                            }
-                        });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure");
+                        Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "onProgress");
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                        mProgressBar.setProgress((int) progress);
+                    }
+                });
             }
+
         } else {
-            Toast.makeText(this, "No image Selected!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No image Added!", Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

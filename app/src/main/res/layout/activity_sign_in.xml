@@ -7,18 +7,18 @@
     android:layout_width="match_parent"
     android:background="@drawable/cleanwise_bg"
     android:orientation="vertical"
+
     android:layout_height="match_parent"
     tools:context="com.example.spark.cleaniiitd.activities.SignInActivity">
 
     <ImageView
-
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:minHeight="200dp"
         android:scaleType="fitCenter"
-        android:layout_marginTop="25sp"
+        android:layout_marginTop="64dp"
         app:srcCompat="@drawable/logo" />
 
     <TextView
