@@ -30,6 +30,7 @@ import com.example.spark.cleaniiitd.CleanWiseApp;
 import com.example.spark.cleaniiitd.R;
 import com.example.spark.cleaniiitd.pojo.Job;
 import com.example.spark.cleaniiitd.pojo.Record;
+import com.example.spark.cleaniiitd.pojo.Supervisor;
 import com.example.spark.cleaniiitd.pojo.UploadImage;
 import com.example.spark.cleaniiitd.adapters.ImageAdapter;
 import com.example.spark.cleaniiitd.utilities.Utilities;
@@ -249,7 +250,11 @@ public class CheckListActivity extends AppCompatActivity {
                             mRecordRef.child(currDate).child(job.getWashroomId()).child(String.valueOf(slot)).setValue(record);
 
                             //TODO: Add this job id to users past records
-
+                            Supervisor s = application.getAppUser(null);
+                            if(s != null) {
+                                s.addJob(job.getId());
+                                application.getAppUser(s);
+                            }
 
                             mProgressBar.setVisibility(View.INVISIBLE);
                             finish();

@@ -10,6 +10,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class CleanWiseApp extends Application {
 
+    private static final String TAG = CleanWiseApp.class.getSimpleName();
     public static CleanWiseApp instance;
     public static FirebaseDatabase firebaseDbInstance;
     public static Supervisor supervisor;
@@ -32,12 +33,9 @@ public class CleanWiseApp extends Application {
 
     synchronized public Supervisor getAppUser(final Supervisor s) {
         if (s != null) {
-            getFirebaseDatabaseInstance().getReference("supervisors").child(s.getId()).setValue(s).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    supervisor = s;
-                }
-            });
+            Log.d(TAG, s.getJobIds().toString());
+            supervisor = s;
+            getFirebaseDatabaseInstance().getReference("supervisors").child(s.getId()).setValue(s);
         } else if (supervisor == null)
             supervisor = new Supervisor();
         return supervisor;

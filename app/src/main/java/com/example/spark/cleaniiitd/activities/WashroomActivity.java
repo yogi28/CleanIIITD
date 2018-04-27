@@ -19,7 +19,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -60,9 +62,12 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
+                    for (Button superviseButton : superviseButtons) {
+                        superviseButton.setBackgroundResource(R.drawable.rounded_button);
+                    }
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         try {
-                            int slot = Integer.parseInt(ds.getKey());
+                            int slot = Integer.parseInt(ds.getKey()) - 1;
                             switch (ds.getValue(Record.class).getStatus()) {
                                 case DONE:
                                     superviseButtons[slot].setBackgroundResource(R.drawable.rounded_button_green);
@@ -84,7 +89,6 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-
         superviseMorningButton.setOnClickListener(this);
         superviseNoonButton.setOnClickListener(this);
         superviseEveningButton.setOnClickListener(this);
@@ -96,6 +100,20 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            ArrayList<Utilities.Status> statuses = Utilities.inWhichSlot();
+            for (int i = 0; i < superviseButtons.length && i < statuses.size(); i++) {
+                if (statuses.get(i) != Utilities.Status.PENDING) {
+                    superviseButtons[i].setEnabled(false);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

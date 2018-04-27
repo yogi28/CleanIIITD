@@ -46,6 +46,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import java.util.ArrayList;
 
 public class SignInActivity extends AppCompatActivity {
+    private static final String TAG = SignInActivity.class.getSimpleName();
     SignInButton signInButton;
     FirebaseAuth mAuth;
     private final static int RC_SIGN_IN = 9221;
@@ -161,6 +162,7 @@ public class SignInActivity extends AppCompatActivity {
             mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setMessage(msg);
             mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCanceledOnTouchOutside(false);
         }
 
         mProgressDialog.show();
@@ -181,7 +183,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        Log.d("TAG", "sign in intent" + signInIntent.toString());
+        Log.d(TAG, "sign in intent" + signInIntent.toString());
         startActivityForResult(signInIntent, RC_SIGN_IN);
 
     }
@@ -198,7 +200,7 @@ public class SignInActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w("TAG", "Google sign in failed", e);
+                Log.w(TAG, "Google sign in failed", e);
                 updateUI(null);
             }
         }
@@ -213,12 +215,12 @@ public class SignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("TAG", "signInWithCredential:success");
+                            Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w("TAG", "signInWithCredential:failure", task.getException());
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(SignInActivity.this, "Some Error Occurred", Toast.LENGTH_SHORT).show();
 //                            Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
@@ -257,6 +259,7 @@ public class SignInActivity extends AppCompatActivity {
                 if ((whitelistSupervisors != null && whitelistSupervisors.contains(s.getEmailId())) || !hasClicked) {
                     access = true;
                     application.getAppUser(s);
+                    Log.d(TAG, s.getId() + " is present and " + application.getAppUser(null).getId() + " also present");
                 }
             } else
                 msg = "User: " + currentUser.getDisplayName() + "\nEmail: " + currentUser.getEmail()

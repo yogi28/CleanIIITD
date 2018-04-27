@@ -20,12 +20,14 @@ public class Supervisor {
         this.emailId = emailId;
         this.name = name;
         this.deviceTokens = deviceTokens;
+        this.jobIds = new ArrayList<>();
     }
 
     public Supervisor(String id, String emailId, String name, String deviceToken) {
         this.id = id;
         this.emailId = emailId;
         this.name = name;
+        this.jobIds = new ArrayList<>();
         if (this.deviceTokens == null) {
             this.deviceTokens = new ArrayList<>();
         }
@@ -69,5 +71,13 @@ public class Supervisor {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ArrayList<String> getJobIds() {
+        return jobIds;
+    }
+
+    public void setJobIds(ArrayList<String> jobIds) {
+        this.jobIds = jobIds;
     }
 }

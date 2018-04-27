@@ -26,6 +26,8 @@ import java.util.Locale;
 
 public class Utilities {
 
+    private static String dateString;
+
     public static String getUserKey(String email) {
         String[] key = email.split("@");
         return key[0];
@@ -144,6 +146,25 @@ public class Utilities {
         mImageView.setImageBitmap(bitmap);
 
 
+    }
+
+    public static String getTimeSlot(int slot) {
+        switch (slot) {
+            case 1:
+                return "9:00 AM - 10:00 AM";
+            case 2:
+                return "1:00 PM - 2:00 PM";
+            case 3:
+                return "7:00 PM - 8:00 PM";
+            default:
+                return "Unknown Slot";
+        }
+    }
+
+    public static String getDateString(long timeInMillis) {
+        Date date = new Date(timeInMillis);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+        return simpleDateFormat.format(date);
     }
 
     public enum Status {
