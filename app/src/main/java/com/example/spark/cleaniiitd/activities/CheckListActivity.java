@@ -1,6 +1,8 @@
 package com.example.spark.cleaniiitd.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.RectF;
@@ -37,9 +39,12 @@ import com.example.spark.cleaniiitd.utilities.Utilities;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -51,6 +56,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.internal.Util;
 
@@ -62,8 +68,10 @@ public class CheckListActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private ImageAdapter imageAdapter;
+    private ProgressDialog progressDialog;
 
     private CleanWiseApp application;
+    private Supervisor supervisor;
 
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
@@ -73,6 +81,7 @@ public class CheckListActivity extends AppCompatActivity {
     private ArrayList<String> imagePaths;
     private String TAG = CheckListActivity.class.getSimpleName();
     private String currDate;
+    private String mCurrentPhotoPath;
 
     private int slot;
     private String washroomId;
@@ -99,19 +108,10 @@ public class CheckListActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.image_list);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
-//        mDatabaseRef = application.getFirebaseDatabaseInstance().getReference("uploads");
         mJobsRef = application.getFirebaseDatabaseInstance().getReference("jobs");
         mRecordRef = application.getFirebaseDatabaseInstance().getReference("records");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-//        addImageButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                dispatchTakePictureIntent();
-////                openCamera();
-//            }
-//        });
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,20 +136,29 @@ public class CheckListActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(imageAdapter);
     }
 
-//    private void openCamera() {
-//        Log.d(TAG, "openCamera");
-//
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        startActivityForResult(intent, REQUEST_CAMERA);
-//    }
+    private void showProgressDialog(String msg, int progress) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(msg);
+        progressDialog.setCancelable(false);
+        if (progress != -1)
+            progressDialog.setProgress(progress);
+        progressDialog.show();
+    }
+
+    private void setProgressDialogProgress(int progress) {
+        progressDialog.setMessage("Uploading Image...  " + progress + "%");
+    }
+
+    private void hideProgressDialog() {
+        progressDialog.hide();
+    }
+
 
     /* REFERENCE: Android Developers: https://developer.android.com/training/camera/photobasics.html */
 
-    String mCurrentPhotoPath;
-
     public File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         String imageFileName = "CW_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -217,6 +226,7 @@ public class CheckListActivity extends AppCompatActivity {
     }
 
     private void uploadImage() {
+        showProgressDialog("Uploading Image", 0);
         mProgressBar.setVisibility(View.VISIBLE);
         final Activity activity = this;
         if (!allImagesUri.isEmpty()) {
@@ -226,46 +236,95 @@ public class CheckListActivity extends AppCompatActivity {
             job.setSupervisorId(application.getAppUser(null).getId());
             final ArrayList<String> imageUrls = new ArrayList<>();
 
-            for (final Uri imageUri : allImagesUri) {
+            for (Uri imageUri : allImagesUri) {
                 Log.d(TAG, imageUri.toString());
-                final String filename = imageUri.getPathSegments().get(imageUri.getPathSegments().size() - 1);
+//                String filename = imageUri.getPathSegments().get(imageUri.getPathSegments().size() - 1);
                 StorageReference fileReference = mStorageRef.child(System.currentTimeMillis()
                         + "." + getImageExtension(imageUri));
-                fileReference.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                fileReference.putFile(imageUri).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, String.valueOf(taskSnapshot.getBytesTransferred()));
+                        double ratio = ((float) taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        setProgressDialogProgress((int) (ratio * 100));
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
                         imageUrls.add(taskSnapshot.getDownloadUrl().toString());
                         if (imageUrls.size() == allImagesUri.size()) {
                             job.setImages(imageUrls);
-                            String key = mJobsRef.push().getKey();
-                            job.setId(key);
+                            supervisor = application.getAppUser(null);
+                            Log.d(TAG, supervisor.getId() + " : here");
+                            mRecordRef.child(currDate).child(washroomId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Log.d(TAG, dataSnapshot.toString());
+                                    if (dataSnapshot.hasChild(String.valueOf(slot))) {
+                                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                            if (ds.getKey().equals(String.valueOf(slot))) {
+                                                Record record = ds.getValue(Record.class);
+                                                Log.d(TAG, supervisor.getId() + " : " + record.getSupervisorId());
+                                                if (record != null && record.getSupervisorId().equals(supervisor.getId())) {
+                                                    String jobId = record.getJobId();
+                                                    Log.d(TAG, jobId);
+                                                    job.setId(jobId);
+                                                    record.setJobId(job.getId());
+                                                    record.setStatus(Utilities.Status.DONE);
+                                                    record.setSupervisorId(job.getSupervisorId());
+                                                    mJobsRef.child(jobId).setValue(job).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d(TAG, "Submitted");
+                                                        }
+                                                    });
+                                                    mJobsRef.child(jobId).child("timestamp").setValue(ServerValue.TIMESTAMP);
+                                                    mRecordRef.child(currDate).child(job.getWashroomId()).child(String.valueOf(slot)).setValue(record);
+                                                } else {
+                                                    Toast.makeText(CheckListActivity.this, "Already Registered! Not authorized to edit this entry.", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
 
-                            Record record = new Record();
-                            record.setJobId(job.getId());
-                            record.setStatus(Utilities.Status.DONE);
-                            record.setSupervisorId(job.getSupervisorId());
+                                    } else {
+                                        String jobId = mJobsRef.push().getKey();
+                                        job.setId(jobId);
 
-                            mJobsRef.child(key).setValue(job);
-                            mJobsRef.child(key).child("timestamp").setValue(ServerValue.TIMESTAMP);
-                            mRecordRef.child(currDate).child(job.getWashroomId()).child(String.valueOf(slot)).setValue(record);
+                                        Record record = new Record();
+                                        record.setJobId(job.getId());
+                                        record.setStatus(Utilities.Status.DONE);
+                                        record.setSupervisorId(job.getSupervisorId());
 
-                            //TODO: Add this job id to users past records
-                            Supervisor s = application.getAppUser(null);
-                            if(s != null) {
-                                s.addJob(job.getId());
-                                application.getAppUser(s);
-                            }
+                                        mJobsRef.child(jobId).setValue(job);
+                                        mJobsRef.child(jobId).child("timestamp").setValue(ServerValue.TIMESTAMP);
+                                        mRecordRef.child(currDate).child(job.getWashroomId()).child(String.valueOf(slot)).setValue(record);
 
-                            mProgressBar.setVisibility(View.INVISIBLE);
+                                        //TODO: Add this job id to users past records
+                                        if (supervisor != null) {
+                                            supervisor.addJob(job.getId());
+                                            application.getAppUser(supervisor);
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    hideProgressDialog();
+                                }
+                            });
+
+//                            mProgressBar.setVisibility(View.INVISIBLE);
+                            hideProgressDialog();
+                            Toast.makeText(CheckListActivity.this, "Job Added!!!", Toast.LENGTH_SHORT).show();
                             finish();
                         }
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mProgressBar.setProgress(0);
-                            }
-                        }, 5000);
+//                        Handler handler = new Handler();
+//                        handler.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//
+//                            }
+//                        }, 5000);
 //                        Log.d(TAG, "onSuccess");
 //                        Toast.makeText(activity, "Upload Successful", Toast.LENGTH_SHORT).show();
 //                        UploadImage uploadImage = new UploadImage(filename, taskSnapshot.getDownloadUrl().toString());
@@ -292,6 +351,7 @@ public class CheckListActivity extends AppCompatActivity {
 
         } else {
             Toast.makeText(this, "No image Added!", Toast.LENGTH_SHORT).show();
+            hideProgressDialog();
         }
     }
 

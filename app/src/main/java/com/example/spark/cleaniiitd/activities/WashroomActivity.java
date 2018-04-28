@@ -103,16 +103,19 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            ArrayList<Utilities.Status> statuses = Utilities.inWhichSlot();
-            for (int i = 0; i < superviseButtons.length && i < statuses.size(); i++) {
-                if (statuses.get(i) != Utilities.Status.PENDING) {
-                    superviseButtons[i].setEnabled(false);
+        // TODO: Code to disable the buttons if time passed
+        /*
+            try {
+                ArrayList<Utilities.Status> statuses = Utilities.inWhichSlot();
+                for (int i = 0; i < superviseButtons.length && i < statuses.size(); i++) {
+                    if (statuses.get(i) != Utilities.Status.PENDING) {
+                        superviseButtons[i].setEnabled(false);
+                    }
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        */
     }
 
     @Override

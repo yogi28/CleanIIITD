@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.spark.cleaniiitd.pojo.Supervisor;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class CleanWiseApp extends Application {
@@ -34,10 +35,15 @@ public class CleanWiseApp extends Application {
     synchronized public Supervisor getAppUser(final Supervisor s) {
         if (s != null) {
             Log.d(TAG, s.getJobIds().toString());
+            DatabaseReference ref = getFirebaseDatabaseInstance().getReference("supervisors");
             supervisor = s;
-            getFirebaseDatabaseInstance().getReference("supervisors").child(s.getId()).setValue(s);
-        } else if (supervisor == null)
+            ref.child(s.getId()).setValue(s);
+        } else if (supervisor == null) {
+            Log.d(TAG, "Turning out to be null for both objects");
             supervisor = new Supervisor();
+        } else {
+            Log.d(TAG, "Else here? " + supervisor.getEmailId() + supervisor.getId());
+        }
         return supervisor;
     }
 
