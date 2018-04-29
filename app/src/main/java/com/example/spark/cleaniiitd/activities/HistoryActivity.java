@@ -74,6 +74,13 @@ public class HistoryActivity extends AppCompatActivity {
                             mHistoryList.setVisibility(View.GONE);
                         }
                     }
+                    if (jobs.size() == 0) {
+                        mHistoryList.setVisibility(View.GONE);
+                        mEmptyTextView.setVisibility(View.VISIBLE);
+                    } else {
+                        mHistoryList.setVisibility(View.VISIBLE);
+                        mEmptyTextView.setVisibility(View.GONE);
+                    }
                 }
             }
 

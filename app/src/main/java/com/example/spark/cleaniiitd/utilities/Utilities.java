@@ -1,12 +1,15 @@
 package com.example.spark.cleaniiitd.utilities;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.Display;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -195,6 +198,7 @@ public class Utilities {
         }
         return statuses;
     }
+
 
 
 }

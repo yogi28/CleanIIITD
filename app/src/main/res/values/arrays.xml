@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="checklist_item_ids">
+        <item>floor</item>
+        <item>urinals</item>
+        <item>walls</item>
+        <item>cobwebs</item>
+        <item>wash_basin</item>
+        <item>fittings</item>
+        <item>mirrors</item>
+        <item>vents</item>
+        <item>taps</item>
+        <item>lights</item>
+        <item>soap_dispenser</item>
+        <item>dustbins</item>
+    </string-array>
+    <string-array name="checklist_items">
+        <item>Floor</item>
+        <item>Urinals</item>
+        <item>Walls</item>
+        <item>Cobwebs</item>
+        <item>Wash Basin</item>
+        <item>Fittings</item>
+        <item>Mirrors</item>
+        <item>Vents</item>
+        <item>Taps</item>
+        <item>Lights</item>
+        <item>Soap Dispenser</item>
+        <item>Dustbins</item>
+    </string-array>
+</resources>

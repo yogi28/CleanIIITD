@@ -58,6 +58,7 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
 
         superviseButtons = new Button[]{superviseMorningButton, superviseNoonButton, superviseEveningButton};
 
+        // Check the statuses of the washroom for the day
         mRecordRef.child(onlyDate).child(washroomId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -73,7 +74,7 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
                                     superviseButtons[slot].setBackgroundResource(R.drawable.rounded_button_green);
                                     break;
                                 case LATE:
-                                    superviseButtons[slot].setBackgroundColor(Color.RED);
+                                    superviseButtons[slot].setBackgroundResource(R.drawable.rounded_button_red);
                                     break;
                             }
                         } catch (Exception e) {
@@ -97,7 +98,6 @@ public class WashroomActivity extends AppCompatActivity implements View.OnClickL
         setDate.setText(onlyDate);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     @Override
