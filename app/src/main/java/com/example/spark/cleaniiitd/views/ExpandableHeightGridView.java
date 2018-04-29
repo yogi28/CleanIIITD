@@ -5,6 +5,12 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+
+/*
+*   Reference from the solution of Neil Traft at https://stackoverflow.com/questions/4523609/grid-of-images-inside-scrollview/4536955#4536955
+*   Also here: https://stackoverflow.com/questions/19242001/expandable-height-gridview-inside-scrollview
+*/
+
 public class ExpandableHeightGridView extends GridView {
 
     boolean expanded = false;
